@@ -197,7 +197,7 @@ async function start() {
 
 server
   .start()
-  .then(() => server.applyMiddleware({app, path: '/graph'}));
+  .then(() => server.applyMiddleware({app, path: '/grap'}));
 
   app.listen(port, () => {
     log.info(`Example app listening on port ${port}`);
