@@ -2,6 +2,7 @@ import express from 'express';
 import {log} from './log';
 import {json} from 'body-parser';
 import {ApolloServer, gql} from 'apollo-server-express';
+import {PrismaClient} from '@prisma/client';
 
 // yarn ts-node-dev src/index.ts
 
@@ -68,19 +69,22 @@ app.delete('/films/:filmId', (req, res) => {
 });
 
 const typeDefs = gql`
-  type Book {
-    title: String!
-    author: Author!
-  }
+  scalar Void
 
   type User {
-    id: ID!
+    id: Int!
     name: String
+    email: String!
   }
 
   type Library {
     branch: String!
-    books: [Book!]
+    books: [Book]!
+  }
+
+  type Book {
+    title: String!
+    author: Author!
   }
 
   type Author {
@@ -88,8 +92,15 @@ const typeDefs = gql`
   }
 
   type Query {
-    user(id: ID!): User
+    user(id: Int!): User
+    users: [User!]!
     libraries: [Library]
+  }
+
+  type Mutation {
+    addUser(name: String, email: String!): User
+    deleteUser(id: Int!): Void
+    updateUser(id: Int!, name: String, email: String!): User
   }
 `;
 
@@ -106,17 +117,6 @@ const books = [
   },
 ];
 
-const users = [
-  {
-    id: '1',
-    name: 'Elizabeth Bennet',
-  },
-  {
-    id: '2',
-    name: 'Fitzwilliam Darcy',
-  },
-];
-
 const libraries = [
   {
     branch: 'downtown',
@@ -126,19 +126,50 @@ const libraries = [
   },
 ];
 
+interface Context {
+  user: string,
+  prisma: PrismaClient
+}
+
 const resolvers = {
   Query: {
-    user(_parent: any, args: any, contextValue: any, _info: any) {
-      log.info(contextValue);
-      return users.find((user) => user.id === args.id);
+    user(_parent: any, args: any, context: Context, _info: any) {
+      return context.prisma.user.findUnique({where: {id: args.id}});
     },
-    libraries() {
+    users(_parent: any, _args: any, context: Context, _info: any) {
+      return context.prisma.user.findMany();
+    },
+		libraries() {
       return libraries;
     },
   },
-  Library: {
+  Mutation: {
+    addUser(_parent: any, args: any, context: Context, _info: any) {
+      return context.prisma.user.create({data: {
+        name: args.name,
+        email: args.email,
+      }});
+    },
+    async deleteUser(_parent: any, args: any, context: Context, _info: any) {
+      await context.prisma.user.delete({where: {
+        id: args.id,
+      }});
+    },
+    updateUser(_parent: any, args: any, context: Context, _info: any) {
+      return context.prisma.user.update({
+        where: {
+          id: args.id,
+        },
+        data: {
+          name: args.name,
+          email: args.email,
+        },
+      });
+    },
+  },
+	Library: {
     books(parent: any) {
-      return books.filter((book) => book.branch === parent.branch);
+      return books.filter(book => book.branch === parent.branch);
     },
   },
   Book: {
@@ -150,20 +181,33 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  csrfPrevention: true,
-  cache: 'bounded',
-  context: ({req}) => ({
-    user: req.headers.user,
-  }),
-});
+const prisma = new PrismaClient();
+
+async function start() {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    csrfPrevention: true,
+    cache: 'bounded',
+    context: ({req}) => ({
+      user: req.headers.user,
+      prisma,
+    }),
+  });
 
 server
   .start()
   .then(() => server.applyMiddleware({app, path: '/graph'}));
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+  app.listen(port, () => {
+    log.info(`Example app listening on port ${port}`);
+  });
+}
+
+start()
+  .catch((error) => {
+    throw error;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

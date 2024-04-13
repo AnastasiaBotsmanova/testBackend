@@ -12,6 +12,7 @@
     "ts-node": "ts-node --files"
   },
   "dependencies": {
+    "@prisma/client": "^5.12.1",
     "apollo-server": "^3.13.0",
     "apollo-server-express": "^3.13.0",
     "body-parser": "^1.20.2",
