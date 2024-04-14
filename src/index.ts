@@ -6,6 +6,7 @@ import express from 'express';
 import {filmsRouter} from './rest/films';
 
 // yarn ts-node-dev src/index.ts
+// cross-env TOKEN=777 yarn ts-node-dev src/index.ts
 
 const app = express();
 app.use(json());
