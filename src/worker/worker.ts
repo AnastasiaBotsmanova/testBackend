@@ -3,7 +3,7 @@ import {config} from 'dotenv';
 import {parseCronItems, run} from 'graphile-worker';
 import exitHook from 'exit-hook';
 
-// yarn ts-node-dev src/helloCron/worker.ts
+// yarn ts-node-dev src/worker/worker.ts
 
 config();
 
