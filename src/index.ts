@@ -15,7 +15,7 @@ const port = 3000;
 app.use('/films', filmsRouter);
 
 app.get('/', (_req, res) => {
-  res.send({message: 'Hello World!'});
+  res.send({message: 'Hello test!'});
 });
 
 const prisma = new PrismaClient();
