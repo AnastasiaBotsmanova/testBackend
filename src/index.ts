@@ -1,9 +1,10 @@
 import {log} from './log';
 import {json} from 'body-parser';
-import {PrismaClient} from '@prisma/client';
 import createApolloServer from './graph/createApolloServer';
 import express from 'express';
 import {filmsRouter} from './rest/films';
+// import exitHook from 'exit-hook';
+// import container from './services/container';
 
 // yarn ts-node-dev src/index.ts
 // cross-env TOKEN=777 yarn ts-node-dev src/index.ts
@@ -15,13 +16,11 @@ const port = 3000;
 app.use('/films', filmsRouter);
 
 app.get('/', (_req, res) => {
-  res.send({message: 'Hello test!'});
+  res.send({message: 'Hello World!'});
 });
 
-const prisma = new PrismaClient();
-
 async function start() {
-  const server = createApolloServer(prisma);
+  const server = createApolloServer();
 
   server
     .start()
@@ -32,10 +31,12 @@ async function start() {
   });
 }
 
+// exitHook(() => {
+//   log.info('exitHook');
+//   container.unbindAll();
+// });
+
 start()
   .catch((error) => {
     throw error;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

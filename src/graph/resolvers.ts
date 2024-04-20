@@ -4,6 +4,7 @@ import { IPricesService } from '../services/PricesService';
 import { IStoresService } from '../services/StoresService';
 import { Service } from '../services/types';
 import {Context} from './types';
+import { PrismaClient } from '@prisma/client';
 
 const libraries = [
   {
@@ -29,11 +30,11 @@ const books = [
 
 const resolvers = {
   Query: {
-    user(_parent: any, args: any, context: Context, _info: any) {
-      return context.prisma.user.findUnique({where: {id: args.id}});
+    user(_parent: any, args: any, {container}: Context, _info: any) {
+      return container.get<PrismaClient>(Service.Prisma).user.findUnique({where: {id: args.id}});
     },
-    users(_parent: any, _args: any, context: Context, _info: any) {
-      return context.prisma.user.findMany();
+    users(_parent: any, _args: any, {container}: Context, _info: any) {
+      return container.get<PrismaClient>(Service.Prisma).user.findMany();
     },
 
     good(_parent: any, args: any, {container}: Context, _info: any) {
@@ -69,19 +70,19 @@ const resolvers = {
     },
   },
   Mutation: {
-    addUser(_parent: any, args: any, context: Context, _info: any) {
-      return context.prisma.user.create({data: {
+    addUser(_parent: any, args: any, {container}: Context, _info: any) {
+      return container.get<PrismaClient>(Service.Prisma).user.create({data: {
         name: args.name,
         email: args.email,
       }});
     },
-    async deleteUser(_parent: any, args: any, context: Context, _info: any) {
-      await context.prisma.user.delete({where: {
+    async deleteUser(_parent: any, args: any, {container}: Context, _info: any) {
+      await container.get<PrismaClient>(Service.Prisma).user.delete({where: {
         id: args.id,
       }});
     },
-    updateUser(_parent: any, args: any, context: Context, _info: any) {
-      return context.prisma.user.update({
+    updateUser(_parent: any, args: any, {container}: Context, _info: any) {
+      return container.get<PrismaClient>(Service.Prisma).user.update({
         where: {
           id: args.id,
         },

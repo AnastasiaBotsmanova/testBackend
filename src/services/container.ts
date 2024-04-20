@@ -4,6 +4,8 @@ import OrdersService, {IOrdersService} from './OrdersService';
 import PricesService, {IPricesService} from './PricesService';
 import StoresService, {IStoresService} from './StoresService';
 import FilmsService, {IFilmsService} from './FilmsService';
+import {PrismaClient} from '@prisma/client';
+
 import {Service} from './types';
 
 const container = new Container({defaultScope: 'Singleton'});
@@ -12,6 +14,8 @@ container.bind<IOrdersService>(Service.Orders).to(OrdersService);
 container.bind<IPricesService>(Service.Prices).to(PricesService);
 container.bind<IStoresService>(Service.Stores).to(StoresService);
 container.bind<IFilmsService>(Service.Films).to(FilmsService);
+container.bind<PrismaClient>(Service.Prisma).toDynamicValue(() =>
+	new PrismaClient()).onDeactivation((prisma) => prisma.$disconnect());
 
 
 export default container;

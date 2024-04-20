@@ -1,10 +1,9 @@
-import {PrismaClient} from '@prisma/client';
 import {ApolloServer} from 'apollo-server-express';
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 import container from '../services/container';
 
-const createApolloServer = (prisma: PrismaClient) => {
+const createApolloServer = () => {
   return new ApolloServer({
     typeDefs,
     resolvers,
@@ -12,7 +11,6 @@ const createApolloServer = (prisma: PrismaClient) => {
     cache: 'bounded',
     context: ({req}) => ({
       user: req.headers.user,
-      prisma,
       container,
     }),
   });
