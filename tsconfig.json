@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "types": ["reflect-metadata"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "outDir": "dist",
     "module": "commonjs",
     "lib": [
