@@ -165,6 +165,15 @@ const resolvers = {
       };
     },
   },
+
+  Order: {
+    good(parent: any, _args: any, {container}: Context, _info: any) {
+      return container.get<IGoodsService>(Service.Goods).byId(parent.goodId);
+    },
+    store(parent: any, _args: any, {container}: Context, _info: any) {
+      return container.get<IStoresService>(Service.Stores).byId(parent.storeId);
+    },
+  },
 };
 
 export default resolvers;
