@@ -1,23 +1,19 @@
 import {inject, injectable} from 'inversify';
 import {IPricesService} from './PricesService';
-import {Service} from './types';
 import 'reflect-metadata';
 import {PrismaClient} from '@prisma/client';
+import {Entity, IEntityService, Service} from './types';
 
-export interface Order {
-  id: number,
+export interface Order extends Entity {
   goodId: number,
   storeId: number,
   quantity: number,
   total: number,
 }
 
-export interface IOrdersService {
-  list: () => Promise<Order[]>,
+export interface IOrdersService extends IEntityService<Order> {
   create: (good: Omit<Order, 'id' | 'total'>) => Promise<Order>,
-  update: (good: Omit<Order, 'total'>) => Promise<Order>,
-  byId: (id: number) => Promise<Order | null>,
-  del: (id: number) => void
+  update: (order: Omit<Order, 'total'>) => Promise<Order>,
 }
 
 @injectable()
